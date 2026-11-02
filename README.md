@@ -1,21 +1,8 @@
-# Laboratorio SOC casero
+# Laboratorio SOC desde 0
 
-Laboratorio SOC desplegado sobre **KVM** en un único portátil: **Wazuh 4.14** como SIEM, **OPNsense** como cortafuegos entre tres redes aisladas y **Suricata** como IDS de red. Dos víctimas monitorizadas (Windows 10 con Sysmon y Ubuntu Server) y una máquina atacante (Kali) en una red separada, de modo que todo el tráfico ofensivo atraviesa el cortafuegos.
+Laboratorio SOC desplegado sobre **KVM** en un único portátil: **Wazuh 4.14** como SIEM, **OPNsense** como cortafuegos entre tres redes aisladas y **Suricata** como IDS de red. Dos víctimas monitorizadas (Windows 10 con Sysmon y Ubuntu Server) y una máquina atacante (Kali) en una red separada, de modo que todo el tráfico del atacante atraviesa el cortafuegos.
 
 📄 **Informe completo (PDF):** en la sección [Releases](../../releases/latest) · fuente LaTeX en [`informe/`](informe/)
-
-## TL;DR
-
-| # | Escenario | MITRE ATT&CK | Fuente | Detectado |
-|---|---|---|---|---|
-| 1 | Fuerza bruta SSH contra Windows | [T1110.001](https://attack.mitre.org/techniques/T1110/001/) | Wazuh (registro de seguridad) | ✅ |
-| 2 | Respuesta HTTP con `uid=0(root)` | — | Suricata → Wazuh | ✅ |
-| 3 | Escaneo de puertos desde Kali | [T1046](https://attack.mitre.org/techniques/T1046/) | Suricata | ⏳ |
-
-**Hallazgos principales**
-
-- La política de bloqueo de cuenta de Windows corta la fuerza bruta, pero puede usarse para denegar el servicio a un usuario legítimo.
-- OPNsense registra en UTC y el resto de fuentes en hora local: sin unificar la zona horaria, correlacionar Suricata y Wazuh es propenso a errores.
 
 ## Arquitectura
 
@@ -35,15 +22,9 @@ Laboratorio SOC desplegado sobre **KVM** en un único portátil: **Wazuh 4.14** 
 | ubuntu-victima | 10.10.10.20 | Víctima Linux + agente |
 | kali | 10.10.20.10 | Atacante |
 
-**Por qué así:** la red del atacante está separada para que su tráfico pase por OPNsense y Suricata; Suricata va dentro de OPNsense en lugar de Security Onion por falta de RAM en el host. Más detalle en el capítulo 2 del informe.
+La red del atacante está separada para que su tráfico pase por OPNsense y Suricata. Suricata va dentro de OPNsense en lugar de Security Onion por falta de RAM en el host. Más detalle en el capítulo 2 del informe.
 
 ## Escenarios
-
-Cada escenario sigue la misma estructura: **hipótesis → ejecución → telemetría en bruto → regla/consulta → cronología → respuesta → huecos de detección**.
-
-1. **Fuerza bruta SSH (T1110.001).** Intentos fallidos desde `10.10.10.254` contra OpenSSH en Windows. Wazuh dispara 60122 (fallo de login) y 60115 (bloqueo de cuenta, nivel 9).
-2. **Detección de red con Suricata.** La víctima recibe una respuesta HTTP con `uid=0(root)`; Suricata dispara el SID 2100498 y la alerta llega a Wazuh a través del agente de OPNsense (regla 86601).
-3. **Escaneo de puertos desde Kali (T1046).** *En curso.*
 
 ## Stack
 
@@ -59,12 +40,6 @@ KVM/libvirt · OPNsense 26.7 · Suricata · Wazuh 4.14 · Sysmon (config. SwiftO
 ├── img/                 ← capturas (compartidas por README e informe)
 ├── configs/             ← configuraciones para reproducir el laboratorio
 └── topologiaSOC.pkt     ← topología en Packet Tracer
-```
-
-Compilar el informe:
-
-```bash
-cd informe && latexmk -pdf main.tex
 ```
 
 ## Referencias
