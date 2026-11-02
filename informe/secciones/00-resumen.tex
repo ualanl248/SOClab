@@ -1,0 +1,34 @@
+% ============================ RESUMEN (TL;DR) ============================
+\chapter*{Resumen}
+\addcontentsline{toc}{chapter}{Resumen}
+
+Se ha desplegado un laboratorio SOC sobre KVM en un único portátil, con
+Wazuh 4.14 como SIEM, OPNsense como cortafuegos entre tres redes
+aisladas y Suricata como IDS de red. Hay dos víctimas monitorizadas
+(Windows 10 con Sysmon y Ubuntu Server) y una máquina atacante (Kali) en una red
+separada, de modo que todo el tráfico ofensivo atraviesa el cortafuegos.
+
+Sobre este entorno se han ejecutado escenarios de ataque mapeados a MITRE
+ATT\&CK y se ha documentado, para cada uno, la telemetría generada, la regla que
+lo detecta, la cronología, la respuesta y los huecos de detección.
+
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{c X l c}
+  \toprule
+  \textbf{\#} & \textbf{Escenario} & \textbf{MITRE} & \textbf{Detectado} \\
+  \midrule
+  1 & Escenario1                  & Codigo & \si/no/pendiente \\
+  2 & Escenario2                  & Codigo & \si/no/pendiente \\\\
+  3 & Escenario3                  & Codigo & \si/no/pendiente \\\\
+  \bottomrule
+\end{tabularx}
+\caption{Resultados en una línea por escenario}\label{tab:resumen}
+\end{table}
+
+Hallazgos principales:
+\begin{itemize}[leftmargin=*,itemsep=0pt]
+  \item Hallazgo1
+  \item Hallazgo2
+\end{itemize}
+
+\pendiente{Resumen corto de un minnuto aprox.}

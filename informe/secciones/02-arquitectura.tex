@@ -1,0 +1,47 @@
+% ============================ ARQUITECTURA ============================
+\chapter{Arquitectura y decisiones de diseño}\label{cap:arquitectura}
+
+\section{Topología}
+El laboratorio se compone de tres redes virtuales de libvirt. La red
+default (NAT del host) hace de Internet para OPNsense. La red
+soc-lab es la LAN interna donde se encuentran el SIEM y las víctimas. Y la red attack aísla a la máquina atacante.
+
+\captura{topologia-fisica}{Topología del laboratorio (modelada en Packet Tracer)}{topologia}
+
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{l l l X}
+  \toprule
+  \textbf{Red libvirt} & \textbf{Puente} & \textbf{Subred} & \textbf{Uso} \\
+  \midrule
+  default & virbr0       & 192.168.122.0/24 & WAN de OPNsense (NAT + DHCP de libvirt) \\
+  soc-lab & virbr-soc    & 10.10.10.0/24    & LAN: SIEM y víctimas \\
+  attack  & virbr-attack & 10.10.20.0/24    & Red del atacante (Kali) \\
+  \bottomrule
+\end{tabularx}
+\caption{Redes virtuales del laboratorio}\label{tab:redes}
+\end{table}
+
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{l l c c c X}
+  \toprule
+  \textbf{VM} & \textbf{IP} & \textbf{RAM} & \textbf{vCPU} & \textbf{Disco} & \textbf{Rol} \\
+  \midrule
+  opnsense       & 10.10.10.1 / 10.10.20.1 & 2 GB & 2 & 20 GB & Router, firewall, DHCP, Suricata \\
+  wazuh          & 10.10.10.10             & 8 GB & 4 & 50 GB & SIEM \\
+  windows10      & 10.10.10.130 (DHCP)     & 4 GB & 2 & 50 GB & Víctima Windows con Sysmon y agente \\
+  ubuntu-victima & 10.10.10.20             & 2 GB & 1 & 15 GB & Víctima Linux con agente \\
+  kali           & 10.10.20.10             & 4GB   & 2 & 80GB   & Atacante \\
+  host           & 10.10.10.254            & --   & -- & --   & Administración y acceso al dashboard \\
+  \bottomrule
+\end{tabularx}
+\caption{Inventario de máquinas virtuales}\label{tab:inventario}
+\end{table}
+
+\section{Flujo de la telemetría}
+\begin{itemize}[leftmargin=*,itemsep=0pt]
+  \item Endpoint Windows: registro de seguridad y Sysmon $\rightarrow$ agente Wazuh $\rightarrow$ manager (10.10.10.10).
+  \item Endpoint Linux: auth.log, syslog $\rightarrow$ agente Wazuh $\rightarrow$ manager.
+  \item Red: Suricata en la LAN de OPNsense $\rightarrow$ eve.json $\rightarrow$ agente Wazuh de OPNsense $\rightarrow$ manager.
+\end{itemize}
+
+

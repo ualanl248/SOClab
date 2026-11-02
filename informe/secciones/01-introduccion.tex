@@ -1,0 +1,76 @@
+% ============================ INTRODUCCIÓN ============================
+\chapter{Introducción}\label{cap:introduccion}
+
+\section{Motivación}
+Este documento recoge el montaje y la puesta a prueba de un laboratorio SOC
+(Security Operations Center) casero, desplegado íntegramente con
+máquinas virtuales sobre un portátil con Ubuntu. El objetivo es reproducir a
+pequeña escala el trabajo de un analista de nivel 1: recoger telemetría de los
+equipos, generar ataques controlados y comprobar si se detectan, cómo se
+detectan y qué se puede hacer como respuesta.
+
+\pendiente{Breve explicación de las motivaciones del proyecto}
+
+\section{Objetivos}
+\begin{itemize}[leftmargin=*]
+  \item Desplegar un SIEM/XDR funcional (Wazuh) en una red aislada.
+  \item Segmentar la red con un cortafuegos (OPNsense) y añadir un IDS de red (Suricata).
+  \item Monitorizar equipos víctima Windows y Linux con agentes y Sysmon.
+  \item Ejecutar escenarios de ataque desde una red de atacante separada (Kali)
+        y documentar detección, análisis y respuesta, mapeados a MITRE ATT\&CK.
+\end{itemize}
+
+\section{Alcance y limitaciones}
+\begin{itemize}[leftmargin=*]
+  \item Entorno de laboratorio sin tráfico real de usuarios: el volumen de
+        eventos y falsos positivos no es representativo de producción.
+  \item Recursos limitados del host (RAM), lo que condiciona cuántas VM pueden
+        estar encendidas a la vez.
+  \item Todos los ataques se ejecutan contra máquinas propias dentro de redes aisladas.
+\end{itemize}
+
+\begin{nota}[Hardware del equipo anfitrión]
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{>{\bfseries\color{socazul}}l X}
+  \toprule
+  Procesador     & Intel Core i7-8750H @ 2.20\,GHz (6 núcleos / 12 hilos) \\
+  Memoria RAM    & 32\,GB DDR4 en dos módulos de 16\,GB
+                   (2667\,MT/s) \\
+  Almacenamiento & SSD de 234\,GB \\
+  Gráfica        & Integrada en el procesador \\
+  Hipervisor     & KVM/QEMU con libvirt sobre Ubuntu 26.04 \\
+  \bottomrule
+\end{tabularx}
+\caption{Características del equipo anfitrión}\label{tab:host}
+\end{table}
+\end{nota}
+
+\section{Herramientas utilizadas}
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{l l X}
+  \toprule
+  \textbf{Herramienta} & \textbf{Versión} & \textbf{Función en el laboratorio} \\
+  \midrule
+  KVM / libvirt / virt-manager & --      & Hipervisor y redes virtuales del host \\
+  OPNsense                     & 26.7    & Router, cortafuegos, NAT y DHCP entre redes \\
+  Suricata (en OPNsense)       & --      & IDS de red sobre la interfaz LAN \\
+  Wazuh                        & 4.14    & SIEM/XDR: indexer, manager y dashboard \\
+  Sysmon                       & 15.x    & Telemetría avanzada de procesos en Windows \\
+  Windows 10 Pro               & 22H2    & Víctima Windows (agente Wazuh + Sysmon) \\
+  Ubuntu Server                & 26.04   & Servidor Wazuh y víctima Linux \\
+  Kali Linux                   & --      & Máquina atacante en red separada \\
+  \bottomrule
+\end{tabularx}
+\caption{Herramientas y versiones del laboratorio}\label{tab:herramientas}
+\end{table}
+
+\section{Estructura del documento}
+El capítulo~\ref{cap:arquitectura} describe la arquitectura y las decisiones de
+diseño. El capítulo~\ref{cap:despliegue} resume el despliegue y los problemas
+encontrados. El capítulo~\ref{cap:escenarios}, núcleo del documento, recoge los
+escenarios de ataque con su telemetría, detección, investigación y respuesta.
+El capítulo~\ref{cap:cobertura} reúne la cobertura de detección y los ajustes
+realizados, y el capítulo~\ref{cap:conclusiones} cierra con lo aprendido. Los
+anexos contienen la instalación paso a paso (\ref{anx:instalacion}), los
+comandos de gestión (\ref{anx:comandos}) y las configuraciones
+(\ref{anx:configuraciones}).

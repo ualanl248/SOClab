@@ -1,0 +1,192 @@
+% =====================================================================
+%  Write-up: Laboratorio SOC casero
+%  Compilar (desde informe/):  latexmk -pdf main.tex
+% =====================================================================
+\documentclass[11pt,a4paper,oneside]{report}
+
+% ---------- Idioma y codificación ----------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+% babel-spanish (.ldf) no está instalado: se usa el locale .ini de babel.
+% Si instalas texlive-lang-spanish puedes volver a \usepackage[spanish,es-tabla]{babel}
+\usepackage{babel}
+\babelprovide[import,main]{spanish}
+\setlocalecaption{spanish}{table}{Tabla}
+\setlocalecaption{spanish}{listtable}{Índice de tablas}
+\usepackage{lmodern}             % monoespaciada (código) y respaldo
+\usepackage{tgtermes}            % texto: TeX Gyre Termes (tipo Times New Roman)
+\usepackage[scale=0.92]{tgheros} % títulos: TeX Gyre Heros (tipo Helvetica/Arial)
+\usepackage{microtype}
+
+% ---------- Página ----------
+\usepackage[margin=2.5cm,headheight=14pt]{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{parskip}
+
+% ---------- Figuras y tablas ----------
+\usepackage{graphicx}
+\graphicspath{{../img/}}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+
+% ---------- Código, colores, cajas ----------
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{enumitem}
+
+% ---------- Enlaces (siempre al final) ----------
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={Laboratorio SOC casero},pdfauthor={Adolfo Nogués López}}
+
+% =====================================================================
+%  Datos del documento (edítalos aquí)
+% =====================================================================
+\newcommand{\titulo}{Laboratorio SOC casero}
+\newcommand{\subtitulo}{Despliegue de Wazuh, Suricata y OPNsense sobre KVM\\y análisis de escenarios de ataque}
+\newcommand{\autor}{Adolfo Nogués López}
+\newcommand{\afiliacion}{Ingeniería Informática -- Universidad de Almería}
+\newcommand{\github}{github.com/ualanl248}
+\newcommand{\version}{Borrador v0.1}
+
+% =====================================================================
+%  Estilo
+% =====================================================================
+\definecolor{socazul}{HTML}{1F3A5F}
+\definecolor{socgris}{HTML}{F4F5F7}
+\definecolor{socrojo}{HTML}{B03A2E}
+\definecolor{socverde}{HTML}{2E7D4F}
+\definecolor{socambar}{HTML}{B7791F}
+
+\titleformat{\chapter}[hang]{\Huge\sffamily\bfseries\color{socazul}}{\thechapter\hspace{12pt}\textcolor{socazul!40}{|}\hspace{12pt}}{0pt}{}
+\titlespacing*{\chapter}{0pt}{-20pt}{24pt}
+\titleformat{\section}{\Large\sffamily\bfseries\color{socazul}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\sffamily\bfseries\color{socazul!85}}{\thesubsection}{1em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{gray}{\titulo}}
+\fancyhead[R]{\small\textcolor{gray}{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+\captionsetup{font=small,labelfont={bf,color=socazul}}
+
+% Código (terminal, PowerShell, configuración)
+\lstdefinestyle{terminal}{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{socgris},
+  frame=leftline, framerule=2pt, rulecolor=\color{socazul},
+  breaklines=true, breakatwhitespace=false, columns=fullflexible,
+  keepspaces=true, showstringspaces=false,
+  xleftmargin=8pt, framexleftmargin=6pt, aboveskip=8pt, belowskip=8pt,
+  literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {ñ}{{\~n}}1
+}
+\lstset{style=terminal}
+% Logs en bruto (JSON de Wazuh, EVE de Suricata, eventos de Windows)
+\lstdefinestyle{log}{style=terminal, basicstyle=\ttfamily\scriptsize, rulecolor=\color{socrojo}}
+\renewcommand{\lstlistingname}{Listado}
+\renewcommand{\lstlistlistingname}{Índice de listados}
+
+% =====================================================================
+%  Macros de trabajo
+% =====================================================================
+% Captura de pantalla:  \captura[ancho]{fichero}{pie de figura}{etiqueta}
+\newcommand{\captura}[4][0.9\linewidth]{%
+  \begin{figure}[H]\centering
+    \fbox{\includegraphics[width=#1,height=0.42\textheight,keepaspectratio]{#2}}
+    \caption{#3}\label{fig:#4}
+  \end{figure}}
+
+% Caja de "pendiente": aparece en el PDF para que no se olvide nada.
+% Para ocultarlas todas en la versión final: \renewcommand{\pendiente}[1]{}
+\newtcolorbox{cajapendiente}{colback=socambar!8,colframe=socambar,boxrule=0.6pt,
+  left=6pt,right=6pt,top=4pt,bottom=4pt,fonttitle=\bfseries\small,title=Pendiente}
+\newcommand{\pendiente}[1]{\begin{cajapendiente}\small #1\end{cajapendiente}}
+
+% Nota / lección aprendida
+\newtcolorbox{nota}[1][Nota]{colback=socazul!5,colframe=socazul,boxrule=0.6pt,
+  left=6pt,right=6pt,top=4pt,bottom=4pt,fonttitle=\bfseries\small,title=#1}
+
+% Ficha resumen de un escenario de ataque
+% \fichaescenario{Técnica MITRE}{Origen}{Objetivo}{Fuente de detección}{Reglas}{Severidad}{Resultado}
+\newcommand{\fichaescenario}[7]{%
+  \begin{table}[H]\centering\small
+  \begin{tabularx}{\linewidth}{>{\bfseries\color{socazul}}l X}
+    \toprule
+    Técnica MITRE ATT\&CK & #1 \\
+    Origen del ataque     & #2 \\
+    Objetivo              & #3 \\
+    Fuente de detección   & #4 \\
+    Reglas / firmas       & #5 \\
+    Severidad máxima      & #6 \\
+    Resultado             & #7 \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Ficha resumen del escenario}
+  \end{table}}
+
+% Hipótesis de detección
+\newtcolorbox{hipotesis}{colback=socverde!6,colframe=socverde,boxrule=0.6pt,
+  left=6pt,right=6pt,top=4pt,bottom=4pt,fonttitle=\bfseries\small,title=Hipótesis de detección}
+
+% Resultado de cobertura
+\newcommand{\si}{\textcolor{socverde}{\textbf{Sí}}}
+\newcommand{\no}{\textcolor{socrojo}{\textbf{No}}}
+\newcommand{\parcial}{\textcolor{socambar}{\textbf{Parcial}}}
+\newcommand{\pend}{\textcolor{gray}{Pendiente}}
+
+% Cronología de un escenario. Uso:
+% \begin{cronologia}
+%   10:06:20 & windows10 & Wazuh 60122 & Primer fallo de login \\
+% \end{cronologia}
+\newenvironment{cronologia}
+  {\begin{table}[H]\centering\small
+   \begin{tabular}{l l l p{0.42\linewidth}}\toprule
+   \textbf{Hora} & \textbf{Equipo} & \textbf{Fuente / regla} & \textbf{Evento} \\ \midrule}
+  {\bottomrule\end{tabular}\caption{Cronología del escenario}\end{table}}
+
+% =====================================================================
+\begin{document}
+
+\input{secciones/00-portada}
+
+\pagenumbering{roman}
+\input{secciones/00-resumen}
+\tableofcontents
+\listoffigures
+\listoftables
+\lstlistoflistings
+\cleardoublepage
+\pagenumbering{arabic}
+
+\input{secciones/01-introduccion}
+\input{secciones/02-arquitectura}
+\input{secciones/03-despliegue}
+\input{secciones/04-escenarios}
+\input{secciones/05-cobertura}
+\input{secciones/06-conclusiones}
+
+% ---------- Bibliografía ----------
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Bibliografía}
+\nocite{*}   % muestra todas las entradas del .bib; quítalo para mostrar solo las citadas
+\bibliographystyle{unsrt}
+\bibliography{bibliografia}
+
+% ---------- Anexos ----------
+\appendix
+\input{secciones/anexo-a-instalacion}
+\input{secciones/anexo-b-comandos}
+\input{secciones/anexo-c-configuraciones}
+
+\end{document}

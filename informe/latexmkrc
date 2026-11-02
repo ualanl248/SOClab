@@ -1,0 +1,5 @@
+# Ficheros auxiliares en _aux/, PDF en informe/
+$pdf_mode = 1;
+$out_dir = ".";
+$aux_dir = "_aux";
+$emulate_aux = 1;

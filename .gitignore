@@ -1,0 +1,68 @@
+# ===================== Compilación LaTeX =====================
+# Auxiliares de latexmk y de LaTeX Workshop (VS Code compila en informe/build/)
+informe/_aux/
+informe/build/
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lol
+*.lot
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.synctex(busy)
+*.toc
+*.tmp
+_minted*/
+
+# PDF compilado: se publica como Release de GitHub en cada hito, no en cada commit.
+# Si prefieres versionarlo, borra esta línea.
+
+
+# ===================== Datos sensibles: nunca subir =====================
+**/Credenciales*
+**/credenciales*
+*.env
+.env*
+*.key
+*.pem
+*.p12
+*.pfx
+*.kdbx
+**/client.keys
+**/authd.pass
+**/wazuh-passwords*
+**/wazuh-install-files.tar
+# Capturas de tráfico y volcados (pueden ser enormes y contener datos)
+*.pcap
+*.pcapng
+*.cap
+*.evtx
+*.dmp
+*.raw
+*.mem
+
+# ===================== Máquinas virtuales =====================
+*.qcow2
+*.img
+*.iso
+*.vmdk
+*.vdi
+*.ova
+
+# ===================== Editor / sistema =====================
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+.directory
+.obsidian/
+
+# ===================== Temporales del proyecto =====================
+.tmp_sheets/

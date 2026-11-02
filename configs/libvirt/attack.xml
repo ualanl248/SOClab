@@ -1,0 +1,4 @@
+<network>
+  <name>attack</name>
+  <bridge name="virbr-attack"/>
+</network>

@@ -1,0 +1,72 @@
+% ============================ DESPLIEGUE ============================
+\chapter{Despliegue}\label{cap:despliegue}
+
+Este capítulo resume el despliegue y se centra en lo que no está en la
+documentación oficial. El paso a paso completo, con todas las capturas, está en
+el anexo~\ref{anx:instalacion}.
+
+\section{Resumen de las configuraciones}
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{l X l}
+  \toprule
+  \textbf{Componente} & \textbf{Configuración relevante} & \textbf{Detalle} \\
+  \midrule
+  OPNsense & WAN vtnet0 (DHCP), LAN vtnet1 10.10.10.1/24, DHCP .100--.200, interfaz ATTACK 10.10.20.1/24 & \ref{sec:a-opnsense} \\
+  Wazuh    & All-in-one 4.14, IP estática 10.10.10.10 & \ref{sec:a-wazuh} \\
+  Windows 10 & Usuario local Victima, Sysmon, OpenSSH Server, agente Wazuh & \ref{sec:a-windows} \\
+  Suricata & IDS (PCAP live) en LAN, promiscuo; rulesets abuse.ch y ET open; plugin os-wazuh-agent & \ref{sec:a-suricata} \\
+  Ubuntu víctima & IP estática 10.10.10.20, agente Wazuh & \ref{sec:a-ubuntu} \\
+  Kali & Red attack, 10.10.20.10, puerta de enlace OPNsense & \ref{sec:a-kali} \\
+  \bottomrule
+\end{tabularx}
+\caption{Resumen del despliegue}\label{tab:despliegue}
+\end{table}
+
+\captura{wazuh-agentes}{Estado final: agentes de Windows, OPNsense y Ubuntu registrados en Wazuh}{wazuh-agentes}
+
+\section{Conjuntos de reglas de Suricata}
+\begin{itemize}[leftmargin=*,itemsep=0pt]
+  \item Reputación / listas negras:
+        abuse.ch SSL Fingerprint Blacklist, abuse.ch SSL IP Blacklist,
+        abuse.ch ThreatFox, abuse.ch URLhaus; ET open botcc,
+        ET open compromised y ET open drop.
+  \item Detección de ataques:
+        ET open emerging-attack\_response, emerging-scan,
+        emerging-exploit, emerging-malware, emerging-policy,
+        emerging-dns y emerging-web\_client.
+  \item Excluidos explícitamente:
+        emerging-info y emerging-hunting, por generar un volumen
+        elevado de alertas sobre actividad legítima.
+  \item Configuración del motor:
+        modo IDS (PCAP live, sin bloqueo) sobre la interfaz LAN;
+        HOME\_NET restringido a 10.10.10.0/24, de modo
+        que la red atacante (10.10.20.0/24), la WAN e Internet
+        se consideran externas; actualización diaria de reglas
+        programada.
+  \item Validación:
+        firma SID 2100498 (GPL ATTACK\_RESPONSE id check returned
+        root), disparada sirviendo la cadena uid=0(root) desde
+        un servidor HTTP en el lado WAN (192.168.122.1:8000),
+        ya que el dominio de prueba testmynids.org ha caducado. La alerta
+        se recibe en Wazuh mediante el agente de OPNsense
+        (regla 86601).
+  \item Ajuste necesario:
+        desactivar la descarga de hardware (CRC, TSO y LRO) en las
+        interfaces de OPNsense; con las tarjetas virtio, Suricata no
+        generaba alertas hasta aplicar este cambio.
+\end{itemize}
+
+\section{Instantáneas}
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{l l X}
+  \toprule
+  \textbf{VM} & \textbf{Instantánea} & \textbf{Estado} \\
+  \midrule
+  opnsense  & opnsense-base         & Instalado y configurado \\
+  wazuh     & wazuh-base            & Wazuh 4.14 instalado y funcionando \\
+  windows10 & windows-limpio        & Windows recién instalado \\
+  windows10 & windows-monitorizado  & Sysmon y agente Wazuh funcionando \\
+  \bottomrule
+\end{tabularx}
+\caption{Instantáneas de las máquinas virtuales}\label{tab:snapshots}
+\end{table}

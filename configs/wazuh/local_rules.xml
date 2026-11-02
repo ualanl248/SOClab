@@ -1,0 +1,4 @@
+<!-- Reglas locales de Wazuh (/var/ossec/etc/rules/local_rules.xml).
+     Añade aquí tus reglas propias y documéntalas en el capítulo 5 del informe. -->
+<group name="local,">
+</group>

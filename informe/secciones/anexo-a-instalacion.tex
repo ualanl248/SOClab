@@ -1,0 +1,187 @@
+% ================= ANEXO A: INSTALACIÓN PASO A PASO =================
+\chapter{Instalación paso a paso}\label{anx:instalacion}
+
+Este anexo recoge el proceso completo de instalación con todas las capturas,
+como referencia para reproducir el laboratorio. El resumen y las decisiones
+están en los capítulos~\ref{cap:arquitectura} y~\ref{cap:despliegue}.
+
+\captura[0.75\linewidth]{esquema-red}{Esquema lógico de las redes y del direccionamiento}{esquema-red}
+
+\section{Preparación del host: KVM y redes virtuales}\label{sec:a-host}
+Se instala KVM con libvirt y virt-manager en el Ubuntu anfitrión y se crea la
+red aislada soc-lab.
+
+\captura[0.6\linewidth]{redes-libvirt}{Redes virtuales activas en libvirt}{redes-libvirt}
+
+\pendiente{Añade el XML o los comandos con los que creaste la red soc-lab.}
+
+% ---------------------------------------------------------------------
+\section{OPNsense: router y cortafuegos}\label{sec:a-opnsense}
+OPNsense se instala con dos interfaces VirtIO: vtnet0 como WAN en la
+red default y vtnet1 como LAN en soc-lab.
+
+\captura{virt-install-opnsense}{Creación de la VM de OPNsense con virt-install}{virt-opnsense}
+\captura[0.6\linewidth]{opnsense-menu-instalacion}{Instalador de OPNsense 26.7 (UFS)}{opn-menu}
+\captura[0.6\linewidth]{opnsense-aviso-ram}{Aviso del instalador por RAM inferior a 3 GB}{opn-ram}
+\captura[0.6\linewidth]{opnsense-progreso}{Progreso de la instalación}{opn-progreso}
+\captura{opnsense-interfaces}{Asignación de interfaces WAN y LAN}{opn-if}
+\captura{opnsense-lan-dhcp}{Configuración de la LAN (10.10.10.1/24) y del servidor DHCP (.100--.200)}{opn-lan}
+\captura[0.7\linewidth]{opnsense-resumen-ips}{Resumen de direcciones de OPNsense}{opn-resumen}
+\captura{snapshot-opnsense}{Instantánea opnsense-base tras la configuración}{snap-opn}
+
+% ---------------------------------------------------------------------
+\section{Wazuh: servidor SIEM}\label{sec:a-wazuh}
+Wazuh 4.14 se despliega en modo all-in-one sobre Ubuntu Server con IP
+estática 10.10.10.10.
+
+\begin{lstlisting}[language=bash,caption={Creación de la VM de Wazuh},label=lst:virt-wazuh]
+virt-install --connect qemu:///system \
+  --name wazuh --memory 8192 --vcpus 4 \
+  --disk size=50,bus=virtio \
+  --cdrom /var/lib/libvirt/images/ubuntu-26.04.1-live-server-amd64.iso \
+  --network network=soc-lab,model=virtio \
+  --osinfo detect=on,require=off \
+  --graphics spice --noautoconsole
+\end{lstlisting}
+
+\captura[0.6\linewidth]{wazuh-ip-estatica}{Configuración de red estática del servidor Wazuh}{wazuh-ip}
+
+\begin{lstlisting}[language=bash,caption={Instalación all-in-one de Wazuh},label=lst:wazuh-install]
+curl -sO https://packages.wazuh.com/4.14/wazuh-install.sh
+sudo bash ./wazuh-install.sh -a -i
+\end{lstlisting}
+
+\captura{wazuh-install-script}{Lanzamiento del instalador de Wazuh}{wazuh-script}
+\captura{snapshot-wazuh}{Instantánea wazuh-base con Wazuh funcionando}{snap-wazuh}
+
+\begin{nota}[Seguridad]
+El instalador muestra la contraseña del usuario admin del dashboard en
+claro. No se incluye esa captura en el documento; si se añade, debe pixelarse
+antes.
+\end{nota}
+
+% ---------------------------------------------------------------------
+\section{Víctima Windows 10: Sysmon y agente Wazuh}\label{sec:a-windows}
+
+\begin{lstlisting}[language=bash,caption={Creación de la VM Windows 10},label=lst:virt-win]
+virt-install --connect qemu:///system \
+  --name windows10 --memory 4096 --vcpus 2 \
+  --disk size=50,bus=sata \
+  --cdrom /var/lib/libvirt/images/Win10_22H2_EnglishInternational_x64v1.iso \
+  --network network=soc-lab,model=e1000e \
+  --osinfo win10 --graphics spice --noautoconsole
+virt-viewer -c qemu:///system --reconnect windows10 &
+\end{lstlisting}
+
+\captura[0.6\linewidth]{windows-instalando}{Instalación de Windows 10 Pro}{win-instalando}
+\captura[0.6\linewidth]{windows-usuario-victima}{Creación del usuario local Victima}{win-usuario}
+\captura{windows-ipconfig-ping}{Windows obtiene IP por DHCP de OPNsense y sale a Internet}{win-ip}
+\captura{snapshot-windows-limpio}{Instantánea windows-limpio}{snap-win-limpio}
+
+\subsection{Sysmon}
+Sysmon se instala con la configuración de SwiftOnSecurity~\cite{swiftonsecurity}.
+
+\begin{lstlisting}[caption={Instalación de Sysmon (PowerShell como administrador)},label=lst:sysmon]
+cd $env:TEMP
+Invoke-WebRequest https://download.sysinternals.com/files/Sysmon.zip -OutFile Sysmon.zip
+Expand-Archive Sysmon.zip -DestinationPath Sysmon -Force
+Invoke-WebRequest https://raw.githubusercontent.com/SwiftOnSecurity/sysmon-config/master/sysmonconfig-export.xml -OutFile sysmonconfig.xml
+.\Sysmon\Sysmon64.exe -accepteula -i sysmonconfig.xml
+\end{lstlisting}
+
+\captura{sysmon-instalacion}{Instalación de Sysmon}{sysmon-inst}
+\captura{sysmon-servicio}{Servicio Sysmon64 en ejecución y primeros eventos}{sysmon-svc}
+\captura{sysmon-evento}{Evento Sysmon ID~1 (creación de proceso) en detalle}{sysmon-ev}
+
+\subsection{OpenSSH Server}
+Se habilita OpenSSH en Windows para disponer de una superficie de ataque
+remota (escenario~\ref{sec:esc-bruteforce}).
+
+\captura{windows-openssh}{Instalación y arranque de OpenSSH Server con PowerShell como shell por defecto}{win-ssh}
+
+\subsection{Agente Wazuh}
+\begin{lstlisting}[caption={Instalación del agente Wazuh en Windows},label=lst:agente-win]
+Invoke-WebRequest -Uri https://packages.wazuh.com/4.x/windows/wazuh-agent-4.14.9-1.msi `
+  -OutFile $env:tmp\wazuh-agent
+msiexec.exe /i $env:tmp\wazuh-agent /q WAZUH_MANAGER='10.10.10.10' WAZUH_AGENT_NAME='windows10'
+NET START Wazuh
+\end{lstlisting}
+
+\captura{wazuh-agente-windows}{Agente Wazuh instalado y arrancado}{agente-win}
+\captura{snapshot-windows-monitorizado}{Instantánea windows-monitorizado}{snap-win-mon}
+
+\pendiente{Añade cómo se ingesta el canal de Sysmon en el agente
+(ossec.conf, Microsoft-Windows-Sysmon/Operational) si lo configuraste.}
+
+% ---------------------------------------------------------------------
+\section{Suricata en OPNsense e integración con Wazuh}\label{sec:a-suricata}
+Suricata se activa en modo IDS (PCAP live) sobre la interfaz LAN, en modo
+promiscuo, con los siguientes conjuntos de reglas:
+
+\begin{itemize}[leftmargin=*,itemsep=0pt]
+  \item Reputación / listas negras: abuse.ch SSL Fingerprint Blacklist,
+        SSL IP Blacklist, ThreatFox, URLhaus; ET open botcc,
+        compromised y drop.
+  \item Detección de ataques: ET open emerging-attack\_response
+        (imprescindible para la prueba de testmynids.org),
+        emerging-scan, emerging-exploit, emerging-malware,
+        emerging-policy, emerging-dns y emerging-web\_client.
+\end{itemize}
+
+\captura[0.7\linewidth]{suricata-ajustes}{Ajustes generales de Suricata en OPNsense}{suri-ajustes}
+\captura[0.6\linewidth]{suricata-rulesets}{Selección de rulesets}{suri-rulesets}
+\captura[0.6\linewidth]{suricata-reglas}{Reglas cargadas tras descargar los conjuntos}{suri-reglas}
+
+Para que las alertas de Suricata lleguen al SIEM se instala el plugin
+os-wazuh-agent en OPNsense.
+
+\captura[0.7\linewidth]{opnsense-wazuh-agent}{Instalación del plugin os-wazuh-agent}{opn-agent}
+
+% ---------------------------------------------------------------------
+\section{Víctima Linux: Ubuntu Server}\label{sec:a-ubuntu}
+\begin{lstlisting}[language=bash,caption={Creación de la VM ubuntu-victima},label=lst:virt-ubu]
+virt-install --connect qemu:///system \
+  --name ubuntu-victima --memory 2048 --vcpus 1 \
+  --disk size=15,bus=virtio \
+  --cdrom /var/lib/libvirt/images/ubuntu-26.04.1-live-server-amd64.iso \
+  --network network=soc-lab,model=virtio \
+  --osinfo detect=on,require=off --graphics spice --noautoconsole
+\end{lstlisting}
+
+\captura[0.6\linewidth]{ubuntu-victima-ip}{IP estática 10.10.10.20 en ubuntu-victima}{ubu-ip}
+
+\pendiente{Documenta la instalación del agente Wazuh en ubuntu-victima.}
+
+% ---------------------------------------------------------------------
+\section{Red de ataque y Kali Linux}\label{sec:a-kali}
+La máquina atacante se coloca en una red propia (attack, 10.10.20.0/24)
+conectada a una tercera interfaz de OPNsense, para que todo su tráfico hacia
+las víctimas pase por el cortafuegos y por Suricata.
+
+\begin{lstlisting}[language=bash,caption={Definición de la red attack},label=lst:red-attack]
+cat > attack.xml <<'EOF'
+<network>
+  <name>attack</name>
+  <bridge name="virbr-attack"/>
+</network>
+EOF
+virsh -c qemu:///system net-define attack.xml
+virsh -c qemu:///system net-autostart attack
+virsh -c qemu:///system net-start attack
+\end{lstlisting}
+
+\captura[0.6\linewidth]{red-attack}{Creación de la red attack}{red-attack}
+\captura[0.7\linewidth]{firewall-attack}{Regla de cortafuegos para la red ATTACK en OPNsense}{fw-attack}
+
+\begin{lstlisting}[language=bash,caption={Configuración de red estática en Kali},label=lst:kali-red]
+sudo nmcli con mod "Wired connection 1" ipv4.method manual \
+  ipv4.addresses 10.10.20.10/24 ipv4.gateway 10.10.20.1 ipv4.dns 10.10.20.1
+sudo nmcli con up "Wired connection 1"
+\end{lstlisting}
+
+\captura{kali-red}{Configuración de red en Kali}{kali-red}
+\captura[0.6\linewidth]{kali-ping}{Kali alcanza su puerta de enlace e Internet a través de OPNsense}{kali-ping}
+
+\pendiente{La regla actual permite todo el tráfico desde ATTACK. Decide y documenta
+qué tráfico se permite hacia la LAN para cada escenario.}
+
