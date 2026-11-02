@@ -18,8 +18,8 @@ Laboratorio SOC desplegado sobre **KVM** en un único portátil: **Wazuh 4.14** 
 |---|---|---|
 | opnsense | 10.10.10.1 / 10.10.20.1 | Router, firewall, DHCP, Suricata |
 | wazuh | 10.10.10.10 | SIEM (indexer, manager, dashboard) |
-| windows10 | 10.10.10.130 | Víctima Windows + Sysmon + agente |
-| ubuntu-victima | 10.10.10.20 | Víctima Linux + agente |
+| windows10 | 10.10.10.130 | Víctima Windows con Sysmon y agente |
+| ubuntu-victima | 10.10.10.20 | Víctima Linux con agente |
 | kali | 10.10.20.10 | Atacante |
 
 La red del atacante está separada para que su tráfico pase por OPNsense y Suricata. Suricata va dentro de OPNsense en lugar de Security Onion por falta de RAM en el host. Más detalle en el capítulo 2 del informe.
