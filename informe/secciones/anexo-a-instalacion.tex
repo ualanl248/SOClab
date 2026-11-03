@@ -5,15 +5,21 @@ Este anexo recoge el proceso completo de instalación con todas las capturas,
 como referencia para reproducir el laboratorio. El resumen y las decisiones
 están en los capítulos~\ref{cap:arquitectura} y~\ref{cap:despliegue}.
 
-\captura[0.75\linewidth]{esquema-red}{Esquema lógico de las redes y del direccionamiento}{esquema-red}
-
 \section{Preparación del host: KVM y redes virtuales}\label{sec:a-host}
 Se instala KVM con libvirt y virt-manager en el Ubuntu anfitrión y se crea la
 red aislada soc-lab.
 
 \captura[0.6\linewidth]{redes-libvirt}{Redes virtuales activas en libvirt}{redes-libvirt}
 
-\pendiente{Añade el XML o los comandos con los que creaste la red soc-lab.}
+\begin{nota}[Red soc-lab]
+\begin{lstlisting}[language=XML]
+<network>
+  <name>soc-lab</name>
+  <bridge name="virbr-soc"/>
+  <ip address="10.10.10.254" netmask="255.255.255.0"/>
+</network>
+\end{lstlisting}
+\end{nota}
 
 % ---------------------------------------------------------------------
 \section{OPNsense: router y cortafuegos}\label{sec:a-opnsense}
@@ -110,8 +116,8 @@ NET START Wazuh
 \captura{wazuh-agente-windows}{Agente Wazuh instalado y arrancado}{agente-win}
 \captura{snapshot-windows-monitorizado}{Instantánea windows-monitorizado}{snap-win-mon}
 
-\pendiente{Añade cómo se ingesta el canal de Sysmon en el agente
-(ossec.conf, Microsoft-Windows-Sysmon/Operational) si lo configuraste.}
+\pendiente{Explicar cómo se añade el canal de Sysmon en el agente
+(ossec.conf, Microsoft-Windows-Sysmon/Operational).}
 
 % ---------------------------------------------------------------------
 \section{Suricata en OPNsense e integración con Wazuh}\label{sec:a-suricata}
@@ -150,7 +156,7 @@ virt-install --connect qemu:///system \
 
 \captura[0.6\linewidth]{ubuntu-victima-ip}{IP estática 10.10.10.20 en ubuntu-victima}{ubu-ip}
 
-\pendiente{Documenta la instalación del agente Wazuh en ubuntu-victima.}
+\pendiente{Documentar la instalación del agente Wazuh en ubuntu-victima.}
 
 % ---------------------------------------------------------------------
 \section{Red de ataque y Kali Linux}\label{sec:a-kali}
@@ -182,6 +188,4 @@ sudo nmcli con up "Wired connection 1"
 \captura{kali-red}{Configuración de red en Kali}{kali-red}
 \captura[0.6\linewidth]{kali-ping}{Kali alcanza su puerta de enlace e Internet a través de OPNsense}{kali-ping}
 
-\pendiente{La regla actual permite todo el tráfico desde ATTACK. Decide y documenta
-qué tráfico se permite hacia la LAN para cada escenario.}
 

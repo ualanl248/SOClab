@@ -5,7 +5,15 @@ Los ficheros completos están en la carpeta configs/ del repositorio.
 Aquí se incluyen solo los fragmentos relevantes.
 
 \section{Red attack de libvirt}
-\lstinputlisting[language=XML,caption={configs/libvirt/attack.xml},label=lst:cfg-attack]{../configs/libvirt/attack.xml}
+\begin{nota}[Red attack]
+\begin{lstlisting}[language=XML]
+<network>
+  <name>attack</name>
+  <bridge name="virbr-attack"/>
+</network>
+\end{lstlisting}
+\end{nota}
+
 
 \section{Agente Wazuh en Windows}
 \pendiente{Fragmento de ossec.conf con el localfile del canal
