@@ -1,3 +1,12 @@
 % ===================== ESCENARIOS DE ATAQUE Y RESPUESTA =====================
 \chapter{Escenarios de ataque y respuesta}\label{cap:escenarios}
 
+\section{Escenario 1: Escaneo de puertos desde Kali}\label{sec:esc-escaneo}
+
+Se lanza un escaneo SYN de puertos desde Kali (10.10.20.10) hacia la víctima Windows (10.10.10.130).
+
+\captura{escaneo-nmap}{Escaneo de puertos con nmap desde Kali}{esc-escaneo-ataque}
+
+El escaneo se detecta en el SIEM mediante las firmas ET SCAN Suspicious inbound (SID 2010935--2010939) del ruleset ET Open emerging-scan, que llegan a Wazuh a través del agente de OPNsense con la regla 86601.
+
+\captura{escaneo-alertas-wazuh}{Alertas del escaneo en Wazuh}{esc-escaneo-alertas}

@@ -6,7 +6,7 @@ Se ha desplegado un laboratorio SOC sobre KVM en un único portátil, con
 Wazuh 4.14 como SIEM, OPNsense como cortafuegos entre tres redes
 aisladas y Suricata como IDS de red. Hay dos víctimas monitorizadas
 (Windows 10 con Sysmon y Ubuntu Server) y una máquina atacante (Kali) en una red
-separada, de modo que todo el tráfico ofensivo atraviesa el cortafuegos.
+separada, de modo que todo el tráfico del atacante atraviesa el cortafuegos.
 
 Sobre este entorno se han ejecutado escenarios de ataque mapeados a MITRE
 ATT\&CK y se ha documentado, para cada uno, la telemetría generada, la regla que
@@ -17,9 +17,7 @@ lo detecta, la cronología, la respuesta y los huecos de detección.
   \toprule
   \textbf{\#} & \textbf{Escenario} & \textbf{MITRE} & \textbf{Detectado} \\
   \midrule
-  1 & Escenario1                  & Codigo & \si/no/pendiente \\
-  2 & Escenario2                  & Codigo & \si/no/pendiente \\\\
-  3 & Escenario3                  & Codigo & \si/no/pendiente \\\\
+  1 & Escaneo de puertos desde Kali (nmap) & T1046 & \si \\ 
   \bottomrule
 \end{tabularx}
 \caption{Resultados en una línea por escenario}\label{tab:resumen}
@@ -27,8 +25,7 @@ lo detecta, la cronología, la respuesta y los huecos de detección.
 
 Hallazgos principales:
 \begin{itemize}[leftmargin=*,itemsep=0pt]
-  \item Hallazgo1
-  \item Hallazgo2
+  \item 
 \end{itemize}
 
-\pendiente{Resumen corto de un minnuto aprox.}
+\pendiente{Resumen corto}
