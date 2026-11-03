@@ -1,4 +1,4 @@
-# Laboratorio SOC desde 0
+# Laboratorio SOC desde 0 (incompleto, en proceso de pruebas)
 
 Laboratorio SOC desplegado sobre **KVM** en un único portátil: **Wazuh 4.14** como SIEM, **OPNsense** como cortafuegos entre tres redes aisladas y **Suricata** como IDS de red. Dos víctimas monitorizadas (Windows 10 con Sysmon y Ubuntu Server) y una máquina atacante (Kali) en una red separada, de modo que todo el tráfico del atacante atraviesa el cortafuegos.
 
