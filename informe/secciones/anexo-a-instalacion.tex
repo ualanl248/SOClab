@@ -28,8 +28,6 @@ red default y vtnet1 como LAN en soc-lab.
 
 \captura{virt-install-opnsense}{Creación de la VM de OPNsense con virt-install}{virt-opnsense}
 \captura[0.6\linewidth]{opnsense-menu-instalacion}{Instalador de OPNsense 26.7 (UFS)}{opn-menu}
-\captura[0.6\linewidth]{opnsense-aviso-ram}{Aviso del instalador por RAM inferior a 3 GB}{opn-ram}
-\captura[0.6\linewidth]{opnsense-progreso}{Progreso de la instalación}{opn-progreso}
 \captura{opnsense-interfaces}{Asignación de interfaces WAN y LAN}{opn-if}
 \captura{opnsense-lan-dhcp}{Configuración de la LAN (10.10.10.1/24) y del servidor DHCP (.100--.200)}{opn-lan}
 \captura[0.7\linewidth]{opnsense-resumen-ips}{Resumen de direcciones de OPNsense}{opn-resumen}
@@ -60,12 +58,6 @@ sudo bash ./wazuh-install.sh -a -i
 \captura{wazuh-install-script}{Lanzamiento del instalador de Wazuh}{wazuh-script}
 \captura{snapshot-wazuh}{Instantánea wazuh-base con Wazuh funcionando}{snap-wazuh}
 
-\begin{nota}[Seguridad]
-El instalador muestra la contraseña del usuario admin del dashboard en
-claro. No se incluye esa captura en el documento; si se añade, debe pixelarse
-antes.
-\end{nota}
-
 % ---------------------------------------------------------------------
 \section{Víctima Windows 10: Sysmon y agente Wazuh}\label{sec:a-windows}
 
@@ -79,7 +71,6 @@ virt-install --connect qemu:///system \
 virt-viewer -c qemu:///system --reconnect windows10 &
 \end{lstlisting}
 
-\captura[0.6\linewidth]{windows-instalando}{Instalación de Windows 10 Pro}{win-instalando}
 \captura[0.6\linewidth]{windows-usuario-victima}{Creación del usuario local Victima}{win-usuario}
 \captura{windows-ipconfig-ping}{Windows obtiene IP por DHCP de OPNsense y sale a Internet}{win-ip}
 \captura{snapshot-windows-limpio}{Instantánea windows-limpio}{snap-win-limpio}
@@ -101,7 +92,7 @@ Invoke-WebRequest https://raw.githubusercontent.com/SwiftOnSecurity/sysmon-confi
 
 \subsection{OpenSSH Server}
 Se habilita OpenSSH en Windows para disponer de una superficie de ataque
-remota (escenario~\ref{sec:esc-bruteforce}).
+remota.
 
 \captura{windows-openssh}{Instalación y arranque de OpenSSH Server con PowerShell como shell por defecto}{win-ssh}
 
@@ -116,8 +107,7 @@ NET START Wazuh
 \captura{wazuh-agente-windows}{Agente Wazuh instalado y arrancado}{agente-win}
 \captura{snapshot-windows-monitorizado}{Instantánea windows-monitorizado}{snap-win-mon}
 
-\pendiente{Explicar cómo se añade el canal de Sysmon en el agente
-(ossec.conf, Microsoft-Windows-Sysmon/Operational).}
+
 
 % ---------------------------------------------------------------------
 \section{Suricata en OPNsense e integración con Wazuh}\label{sec:a-suricata}
@@ -156,7 +146,7 @@ virt-install --connect qemu:///system \
 
 \captura[0.6\linewidth]{ubuntu-victima-ip}{IP estática 10.10.10.20 en ubuntu-victima}{ubu-ip}
 
-\pendiente{Documentar la instalación del agente Wazuh en ubuntu-victima.}
+\captura[0.6\linewidth]{ConfiguracionesWazuhUbuntu}{Configuración de Wazuh en ubuntu-victima}{ubu-ip}
 
 % ---------------------------------------------------------------------
 \section{Red de ataque y Kali Linux}\label{sec:a-kali}
