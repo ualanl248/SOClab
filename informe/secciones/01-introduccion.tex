@@ -6,8 +6,10 @@ Este documento recoge el montaje y la puesta a prueba de un laboratorio SOC
 (Security Operations Center) casero, desplegado íntegramente con
 máquinas virtuales sobre un portátil con Ubuntu. El objetivo es reproducir a
 pequeña escala el trabajo de un analista de nivel 1: recoger telemetría de los
-equipos, generar ataques controlados y comprobar si se detectan, cómo se
-detectan y qué se puede hacer como respuesta.
+equipos, generar ataques controlados y comprobar si se detectan y cómo se
+detectan.
+
+Además intentaremos mejorar nuestro sistema para hacerlo más efectivo y eficiente.
 
 \section{Objetivos}
 \begin{itemize}[leftmargin=*]
@@ -16,6 +18,8 @@ detectan y qué se puede hacer como respuesta.
   \item Monitorizar equipos víctima Windows y Linux con agentes y Sysmon.
   \item Ejecutar escenarios de ataque desde una red de atacante separada (Kali)
         y documentar detección, análisis y respuesta, mapeados a MITRE ATT\&CK.
+  \item Modificar las configuraciones iniciales en base a los resultados de las pruebas
+  \item Vover a poner a prueba el sistema para comprobar la efectividad de los cambios
 \end{itemize}
 
 \section{Alcance y limitaciones}
@@ -66,6 +70,6 @@ detectan y qué se puede hacer como respuesta.
 El capítulo~\ref{cap:arquitectura} describe la arquitectura y las decisiones de
 diseño. El capítulo~\ref{cap:despliegue} resume el despliegue y los problemas
 encontrados. El capítulo~\ref{cap:escenarios}, núcleo del documento, recoge los
-escenarios de ataque con su telemetría, detección, investigación y respuesta. Los
+escenarios de ataque con su telemetría, detección, investigación y respuesta. Los capítulos posteriores recogen los cambios en las configuraciones iniciales en base a las pruebas realilzadas y la puesta a prueba de estos cambios. Los
 anexos contienen la instalación paso a paso (\ref{anx:instalacion}) y
 las configuraciones (\ref{anx:configuraciones}).

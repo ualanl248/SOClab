@@ -12,20 +12,38 @@ Sobre este entorno se han ejecutado escenarios de ataque mapeados a MITRE
 ATT\&CK y se ha documentado, para cada uno, la telemetría generada, la regla que
 lo detecta, la cronología, la respuesta y los huecos de detección.
 
+Posteriormente se modifican las reglas establecidas y se vuelven a poner a prueba con los mimos ataques. 
+
+El objetivo es conseguir un sistema de monitoreo bien afinado que nos permita tener una visión clara de que sucede en nuestra infraestructura.
+
 \begin{table}[H]\centering\small
-\begin{tabularx}{\linewidth}{c X l c}
+\begin{tabularx}{\linewidth}{c X l l}
   \toprule
-  \textbf{\#} & \textbf{Escenario} & \textbf{MITRE} & \textbf{Detectado} \\
+  \textbf{\#} & \textbf{Escenario} & \textbf{MITRE} & \textbf{Fase} \\
   \midrule
-  1 & Escaneo de puertos desde Kali (nmap) & T1046 & \si \\ 
+  1  & Escaneo de puertos con nmap (Kali $\rightarrow$ Windows y Ubuntu) & T1046     & Reconocimiento \\
+  2  & Escaneo web con nikto (Kali $\rightarrow$ DVWA)                          & T1595.002 & Reconocimiento \\
+  3  & Fuerza bruta de rutas con gobuster/dirb (Kali $\rightarrow$ DVWA)        & T1595.003 & Reconocimiento \\
+  \addlinespace
+  4  & Inyección SQL (Kali $\rightarrow$ DVWA)              & T1190     & Acceso inicial \\
+  5  & XSS reflejado (navegador $\rightarrow$ DVWA)                             & T1059.007 & Acceso inicial \\
+  6  & Subida de archivo malicioso (Kali $\rightarrow$ DVWA)                    & T1505.003 & Acceso inicial \\
+  \addlinespace
+  7  & Fuerza bruta SSH con hydra (Kali $\rightarrow$ Ubuntu)                   & T1110     & Acceso a credenciales \\
+  8  & Fuerza bruta SSH con hydra (Kali $\rightarrow$ Windows)                  & T1110     & Acceso a credenciales \\
+  9  & Fuerza bruta al login web con hydra http-form (Kali $\rightarrow$ DVWA)  & T1110     & Acceso a credenciales \\
+  \addlinespace
+  10 & Comandos en shell (Ubuntu)                                   & T1059.004 & Ejecución \\
+  11 & PowerShell codificado con -EncodedCommand (Windows)                      & T1059.001 & Ejecución \\
+  \addlinespace
+  12 & Creación de usuario con useradd (Ubuntu)                                 & T1136.001 & Persistencia \\
+  13 & Tarea programada con schtasks (Windows)                                  & T1053.005 & Persistencia \\
+  14 & Clave de registro Run con reg add (Windows)                              & T1547.001 & Persistencia \\
+  \addlinespace
+  15 & Borrado del log de seguridad con wevtutil cl (Windows)                   & T1070.001 & Evasión \\
+  \addlinespace
+  16 & Reverse shell con netcat (Ubuntu $\rightarrow$ Kali)                     & T1059     & Command \& control \\
   \bottomrule
 \end{tabularx}
-\caption{Resultados en una línea por escenario}\label{tab:resumen}
+\caption{Escenarios planificados}\label{tab:resumen}
 \end{table}
-
-%Hallazgos principales:
-%\begin{itemize}[leftmargin=*,itemsep=0pt]
-% \item 
-%\end{itemize}
-
-%\pendiente{Resumen corto}

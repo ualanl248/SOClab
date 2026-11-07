@@ -1,12 +1,11 @@
 % ===================== ESCENARIOS DE ATAQUE Y RESPUESTA =====================
-\chapter{Escenarios de ataque y respuesta}\label{cap:escenarios}
+\chapter{Escenarios de ataque y respuesta iniciales}\label{cap:escenarios}
+
+En este capítulo lo que se pretende es establecer una serie de ataques como línea base para poner a prueba las reglas configuradas en un inicio. 
+
+Se irán registrando y explicando los ataques con los que pondremos a prueba la precisión de nuestro dataset para posteriormente elaborar una matriz de cobertura con MITRE ATT\&CK navigator que nos de una visión más global de cada casuística y el modo en que ha sido tratada por nuestro sistema de monitoreo.
+
+Más adelante, tras afilar nuestra herramienta de monitoreo mediante la adición y modificación de las reglas configuradas, volveremos a realizar los mismos ataques y observaremos la diferencia.
 
 \section{Escenario 1: Escaneo de puertos desde Kali}\label{sec:esc-escaneo}
 
-Se lanza un escaneo SYN de puertos desde Kali (10.10.20.10) hacia la víctima Windows (10.10.10.130).
-
-\captura{escaneo-nmap}{Escaneo de puertos con nmap desde Kali}{esc-escaneo-ataque}
-
-El escaneo se detecta en el SIEM mediante las firmas ET SCAN Suspicious inbound (SID 2010935--2010939) del ruleset ET Open emerging-scan, que llegan a Wazuh a través del agente de OPNsense con la regla 86601.
-
-\captura{escaneo-alertas-wazuh}{Alertas del escaneo en Wazuh}{esc-escaneo-alertas}
